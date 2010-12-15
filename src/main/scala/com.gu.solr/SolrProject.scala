@@ -33,7 +33,7 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
   def jettyVersion = "6.1.14"
   def solrVersion = "1.4.1"
 
-  val guardian = "Guardian GitHub" at "http://guardian.github.com/maven"
+  val guardian = "Guardian GitHub" at "http://guardian.github.com/maven/repo-releases"
 
   override def libraryDependencies = super.libraryDependencies ++
     Set("org.apache.solr" % "solr-webapp" % solrVersion % "test",
