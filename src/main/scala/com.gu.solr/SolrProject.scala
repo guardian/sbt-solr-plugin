@@ -29,6 +29,7 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
   private def outputWebappDirectory = outputPath / "webapp"
 
   override val jettyPort = 8983
+  override val jettyContextPath = "/solr"
 
   def jettyVersion = "6.1.14"
   def solrVersion = "1.4.1"
@@ -55,7 +56,7 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
     None
   }
 
-  override def jettyRunClasspath = outputPath / "webapp" / "WEB-INF" / "lib" * "*.jar"
+  override def jettyRunClasspath = outputWebappDirectory / "WEB-INF" / "lib" * "*.jar"
 
   override def jettyRunAction = super.jettyRunAction dependsOn task {
     System.setProperty("solr.solr.home", outputSolrDirectory.absolutePath)
