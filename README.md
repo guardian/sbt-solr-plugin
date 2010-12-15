@@ -11,7 +11,7 @@ Plugins file:
 
     class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
       val guardian = "Guardian GitHub" at "http://guardian.github.com/maven/repo-releases"
-      val solr = "com.gu" % "sbt-solr-plugin" % "0.1"
+      val solr = "com.gu" % "sbt-solr-plugin" % "0.2"
     }
 
 
