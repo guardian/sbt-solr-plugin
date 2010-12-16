@@ -41,7 +41,7 @@ will have to be added to your project definition.
 
 You can get a development trunk build of Solr 4.0 by using:
 
-      val guardian = "Guardian GitHub" at "http://guardian.github.com/maven/repo-snapshots"
+      val guardian_github = "Guardian GitHub" at "http://guardian.github.com/maven/repo-snapshots"
       override def solrVersion = "4.0-trunk-build-1343"
 
 Gotcha
