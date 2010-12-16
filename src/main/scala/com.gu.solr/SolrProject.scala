@@ -31,7 +31,7 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
   override val jettyPort = 8983
   override val jettyContextPath = "/solr"
 
-  def jettyVersion = "6.1.14"
+  def jettyVersion = "6.1.26"
   def solrVersion = "1.4.1"
 
   val guardian = "Guardian GitHub" at "http://guardian.github.com/maven/repo-releases"
