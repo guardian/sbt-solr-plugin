@@ -44,7 +44,13 @@ You can get a development trunk build of Solr 4.0 by using:
       val guardian_github = "Guardian GitHub" at "http://guardian.github.com/maven/repo-snapshots"
       override def solrVersion = "4.0-trunk-build-1343"
 
-Gotcha
-======
+Gotchas
+=======
 Developing with `jetty-run`, `~prepare-webapp` may not work as expected. You may
 want to `jetty-restart` instead.
+
+Add the following to your `src/main/solr/conf/solrconfig.xml` if you want to
+specify a index directory outside of `target`. And you do want to do this or
+`prepare-webapp` will hose your index each time.
+
+     <dataDir>${solr.data.dir}</dataDir>
