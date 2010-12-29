@@ -21,6 +21,9 @@ import sbt._
 
 class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
 
+  private implicit def pathFinder2head(finder: PathFinder) = new {
+    def head = finder.get.toList.head
+  }
 
   def solrDirectory = "src" / "main" / "solr"
   def solrIndexDirectory = outputPath / "solr" / "data"
@@ -50,7 +53,8 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
     FileUtilities.clean(outputPath, log)
     FileUtilities.sync(solrDirectory, outputSolrDirectory, log)
 
-    val solr = ("lib_managed" ** ("solr-webapp-%s.war" format solrVersion)).get.toList.head
+    val solr = ("lib_managed" ** ("solr-webapp-%s.war" format solrVersion)).head
+    FileUtilities.copyFile(solr, outputPath / "solr.war", log)
     FileUtilities.unzip(solr, outputWebappDirectory, log)
 
     None
