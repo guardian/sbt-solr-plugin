@@ -25,7 +25,11 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
     def head = finder.get.toList.head
   }
 
-  def solrDirectory = "src" / "main" / "solr"
+  private implicit def basicDependencyPaths2Lib(project: BasicDependencyPaths) = new {
+    def lib(filePattern: String) = (project.managedDirectoryName ** filePattern).head
+  }
+
+  def solrDirectory = mainSourcePath / "solr"
   def solrIndexDirectory = outputPath / "solr" / "data"
 
   private def outputSolrDirectory = outputPath / "solr"
@@ -53,7 +57,7 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
     FileUtilities.clean(outputPath, log)
     FileUtilities.sync(solrDirectory, outputSolrDirectory, log)
 
-    val solr = ("lib_managed" ** ("solr-webapp-%s.war" format solrVersion)).head
+    val solr = this.lib("solr-webapp-%s.war" format solrVersion)
     FileUtilities.copyFile(solr, outputPath / "solr.war", log)
     FileUtilities.unzip(solr, outputWebappDirectory, log)
 
@@ -62,10 +66,14 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
 
   override def jettyRunClasspath = outputWebappDirectory / "WEB-INF" / "lib" * "*.jar"
 
+  def properties = Map(
+    "solr.solr.home" -> outputSolrDirectory.absolutePath,
+    "solr.data.dir" -> solrIndexDirectory.absolutePath
+//    "java.util.logging.config.file" -> (outputSolrDirectory / "logging.properties").absolutePath
+  )
+
   override def jettyRunAction = super.jettyRunAction dependsOn task {
-    System.setProperty("solr.solr.home", outputSolrDirectory.absolutePath)
-    System.setProperty("solr.data.dir", solrIndexDirectory.absolutePath)
-//    System.setProperty("java.util.logging.config.file", (outputSolrDirectory / "logging.properties").absolutePath)
+    properties foreach { case (name, value) => System.setProperty(name, value) }
 
     None
   }
