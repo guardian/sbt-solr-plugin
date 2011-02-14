@@ -41,6 +41,8 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
   def jettyVersion = "6.1.14"
   def solrVersion = "1.4.1"
 
+  def solrWar = this.lib("solr-webapp-%s.war" format solrVersion)
+
   val guardian = "Guardian GitHub" at "http://guardian.github.com/maven/repo-releases"
 
   override def libraryDependencies = super.libraryDependencies ++
@@ -56,10 +58,7 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
   override def prepareWebappAction = task {
     FileUtilities.clean(outputPath, log)
     FileUtilities.sync(solrDirectory, outputSolrDirectory, log)
-
-    val solr = this.lib("solr-webapp-%s.war" format solrVersion)
-    FileUtilities.copyFile(solr, outputPath / "solr.war", log)
-    FileUtilities.unzip(solr, outputWebappDirectory, log)
+    FileUtilities.unzip(solrWar, outputWebappDirectory, log)
 
     None
   }
