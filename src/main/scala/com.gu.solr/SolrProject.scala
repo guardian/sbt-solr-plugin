@@ -41,17 +41,24 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
   def jettyVersion = "6.1.14"
   def solrVersion = "1.4.1"
 
-  def solrWar = this.lib("solr-webapp-%s.war" format solrVersion)
+  val logbackConfiguration: Option[Path] = None
+
+  private def solrWarName = logbackConfiguration match {
+    case Some(_) => "solr-webapp-logback"
+    case _ => "solr-webapp"
+  }
+
+  def solrWar = this.lib("%s-%s.war" format (solrWarName, solrVersion))
 
   val guardian = "Guardian GitHub" at "http://guardian.github.com/maven/repo-releases"
 
   override def libraryDependencies = super.libraryDependencies ++
-    Set("org.apache.solr" % "solr-webapp" % solrVersion % "test",
+      Set("org.apache.solr" % solrWarName % solrVersion % "test",
         "org.mortbay.jetty" % "jetty" % jettyVersion % "test",
         "org.mortbay.jetty" % "jsp-2.1" % jettyVersion % "test",
         "org.mortbay.jetty" % "jsp-api-2.1" % jettyVersion % "test")
 
-  override def scanDirectories = super.scanDirectories ++ Set(solrDirectory)
+  override def scanDirectories = super.scanDirectories ++ Set(solrDirectory) ++ logbackConfiguration.toList
 
   override def packageAction = task { None }
 
@@ -59,17 +66,23 @@ class SolrProject(info: ProjectInfo) extends DefaultWebProject(info) {
     FileUtilities.clean(outputPath, log)
     FileUtilities.sync(solrDirectory, outputSolrDirectory, log)
     FileUtilities.unzip(solrWar, outputWebappDirectory, log)
+    logbackConfiguration foreach { config =>
+      FileUtilities.copyFilesFlat(List(config.asFile), outputWebappDirectory, log)
+    }
 
     None
   }
 
   override def jettyRunClasspath = outputWebappDirectory / "WEB-INF" / "lib" * "*.jar"
 
-  def properties = Map(
-    "solr.solr.home" -> outputSolrDirectory.absolutePath,
-    "solr.data.dir" -> solrIndexDirectory.absolutePath
-//    "java.util.logging.config.file" -> (outputSolrDirectory / "logging.properties").absolutePath
-  )
+  def properties = {
+    val logback = logbackConfiguration.toList map { "logback.configurationFile" -> _.absolutePath }
+
+    Map(
+      "solr.solr.home" -> outputSolrDirectory.absolutePath,
+      "solr.data.dir" -> solrIndexDirectory.absolutePath
+    ) ++ logback
+  }
 
   override def jettyRunAction = super.jettyRunAction dependsOn task {
     properties foreach { case (name, value) => System.setProperty(name, value) }
